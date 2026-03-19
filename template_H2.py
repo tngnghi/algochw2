@@ -8,6 +8,7 @@ import numpy as np
 from timeit import default_timer as timer
 import matplotlib.pyplot as plt
 
+sys.setrecursionlimit(2000)
 
 # ============================================================================
 # Q1. Quick Sort
@@ -25,27 +26,50 @@ import matplotlib.pyplot as plt
 # Include comments on key lines of code (for, while, if, etc.) to demonstrate
 # your comprehension of the implementation.
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
+def partition(A, p, r):
+    #chosing last index of list (in this iteration) to be pivot
+    x = A[r]
+    i = p-1
+    #loop to compare with the rest element in this iteration, find the appropiate place of pivot
+    for j in range(p, r):
+        if A[j] <= x:
+            i=i+1
+            A[i], A[j] = A[j], A[i]
+    #then put pivot at its place 
+    A[i+1], A[r] = A[r], A[i+1]
+    return i + 1
+
+def quick(input_list, p, r):
+    #recursively partion if the start index is larger than (or at least equalt to) the end index
+    if p < r:
+        q = partition(input_list, p, r)
+        #apply quick for each part after partition
+        quick(input_list, p, q-1)
+        quick(input_list, q+1, r)
+    return input_list
+
 def quick_sort(input_list):
-    return ...
+    # use helper function to track the index of each iteration easier
+    return quick(input_list, 0, len(input_list) -1)
 
 
 # function header for Q1.2 (Manual grading)
 # Sort 1000 randomly generated integers and print the running time.
 # Generate input using np.random.randint(0, 1000, 1000).
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def q1_2():
     input = np.random.randint(0, 1000, 1000)
     ''' write your answers (codes/texts) from here '''
-
-
-
-
+    start = timer()
+    quick_sort(input)
+    end = timer()
+    print(f"Sort 1000 randomly generated integers and print the running time: {end-start}.")
     ''' end your answers '''
 
 
@@ -53,16 +77,16 @@ def q1_2():
 # Sort 1000 integers in ascending order and print the running time.
 # Generate input using np.arange(0, 1000).
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def q1_3():
     input = np.arange(0, 1000)
     ''' write your answers (codes/texts) from here '''
-
-
-
-
+    start = timer()
+    quick_sort(input)
+    end = timer()
+    print(f"Sort 1000 integers in ascending order and print the running time: {end-start}")
     ''' end your answers '''
 
 
@@ -70,23 +94,25 @@ def q1_3():
 # Sort 1000 integers in descending order and print the running time.
 # Generate input using np.arange(1000, 0, -1).
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def q1_4():
     input = np.arange(1000, 0, -1)
     ''' write your answers (codes/texts) from here '''
-
-
-
-
+    start = timer()
+    quick_sort(input)
+    end = timer()
+    print(f"Sort 1000 integers in descending order and print the running time: {end-start}")
     ''' end your answers '''
 
 
 # Q1.5:
 # Explain why the running time of Q1-(3) and Q1-(4) is greater than Q1-(2).
 # Write your explanation below as a Python comment
-# {here...}
+# {since quick_sort work as an divide-and-conquer algorithm, is the sequence is either descending or ascending, 
+# quick-sort has to go through every items, and partition right at the front or end of the list, which will create more partition in between.
+# However, with random sequences, partition can be the middle index, hence lessen the time that partition function iterates}
 
 
 # function header for Q1.6 (Auto & manual grading)
@@ -97,12 +123,30 @@ def q1_4():
 #
 # Include comments on key lines of code to demonstrate your comprehension.
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 # < 10 points - autograding >
+def modified_partition(A, p, r):
+    #choose pivot as the middle, instead of the end, to make runtime into nlogn instead of n^2
+    x = A[(p+r)//2]
+    #the rest have similar strategy of approaching as the first edition
+    i = p-1
+    for j in range(p, r):
+        if A[j] <= x:
+            i=i+1
+            A[i], A[j] = A[j], A[i]
+    A[i+1], A[r] = A[r], A[i+1]
+    return i + 1
+def modified_quick(input_list,p,r):
+    if p < r:
+        q = modified_partition(input_list, p, r)
+        modified_quick(input_list, p, q-1)
+        modified_quick(input_list, q+1, r)
+    return input_list
+
 def modified_quick_sort(input_list):
-    return ...
+    return modified_quick(input_list, 0, len(input_list) -1)
 
 
 # Print the running time of ascending and descending inputs using
@@ -112,10 +156,15 @@ def q1_6():
     input_A = np.arange(0, 1000)
     input_B = np.arange(1000, 0, -1)
     ''' write your answers (codes/texts) from here '''
+    start = timer()
+    modified_quick_sort(input_A)
+    end = timer()
+    print(f"Sort 1000 integers in asscending order and print the running time: {end-start}")
 
-
-
-
+    start = timer()
+    modified_quick_sort(input_B)
+    end = timer()
+    print(f"Sort 1000 integers in descending order and print the running time: {end-start}")
     ''' end your answers '''
 
 
@@ -135,11 +184,19 @@ def q1_6():
 #
 # Include comments on key lines of code to demonstrate your comprehension.
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def priority_sort(input):
-    return ...
+    for i in range(1,len(input)):
+        for j in range(0,len(input)-1):
+            #approach priority first, comparing, then swap the to their right place
+            if input[i][1] < input[j][1]:
+                input[j], input[i] = input[i], input[j]
+            # then approach value, comparing, then swap the to their right place
+            if input[i][1] == input[j][1] and input[i][0] < input[j][0]:
+                input[j], input[i] = input[i], input[j]
+    return input
 
 
 # ============================================================================
@@ -156,11 +213,26 @@ def priority_sort(input):
 #
 # Include comments on key lines of code to demonstrate your comprehension.
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
+def checked_subset(nums, a, b, target):
+    #base case for recursive
+    if nums[a] == target: return True
+    #one more base case: loop in range of the subset, check sums of 2 elements
+    for i in range(a+1,b+1):
+        if nums[a] + nums[i] == target : return True
+    #if haven't found the target, let nums[a] be an addend to find the target by summing
+    target -= nums[a]
+    #recursively check the subset from a+1 to b
+    if a+1 <= b and target > 0: return checked_subset(nums, a+1, b, target)
+    
+    return False
+    
 def subset_sum(nums, target):
-    return ...
+    #loop and check all continuous subsets of nums
+    for j in range(0, len(nums)-1):
+        return checked_subset(nums,j,len(nums)-1, target)
 
 
 # ============================================================================
@@ -183,12 +255,23 @@ def subset_sum(nums, target):
 #
 # Include comments on key lines of code to demonstrate your comprehension.
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def min_cost_naive(costs, m_minus_one, n_minus_one):
-    return ...
-
+    # base case: can't apply the formulat with the start cell
+    if m_minus_one == 0 and n_minus_one ==0:
+        return costs[0][0]
+    # mamking sure m_minus_one, n_minus_one are both non-negative
+    if m_minus_one>=0 and n_minus_one>=0:
+        #if m or n is 0, it is at edge, hence the calculation based on the previous edge cell only
+        if m_minus_one == 0:
+            return min_cost_naive(costs,0,n_minus_one-1)+costs[m_minus_one][n_minus_one]
+        if n_minus_one == 0:
+            return min_cost_naive(costs,m_minus_one-1,0)+costs[m_minus_one][n_minus_one]
+        # apply formula regularly
+        return min(min_cost_naive(costs, m_minus_one-1,n_minus_one-1), min_cost_naive(costs, m_minus_one-1,n_minus_one), min_cost_naive(costs, m_minus_one,n_minus_one-1)) + costs[m_minus_one][n_minus_one]
+    return []
 
 # function header for Q4.2 (Auto & manual grading)
 # Top-down DP (memoization). Return the minimum cost and print running time.
@@ -199,11 +282,35 @@ def min_cost_naive(costs, m_minus_one, n_minus_one):
 #
 # Include comments on key lines of code to demonstrate your comprehension.
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
+def find_and_store_min(costs, min_costs, m_minus_one, n_minus_one):
+    q=None
+    #since we can access the stored array, if it exist, return the value instead of calculating again
+    if min_costs[m_minus_one][n_minus_one] >= np.min(costs):
+        return min_costs[m_minus_one][n_minus_one]
+    #cell is at start
+    if m_minus_one == 0 and n_minus_one ==0:
+        q = costs[0][0]
+    #cell is on edge
+    if m_minus_one == 0 and n_minus_one>0:
+        q = find_and_store_min(costs,min_costs,0,n_minus_one-1)+costs[m_minus_one][n_minus_one]
+    if n_minus_one == 0 and m_minus_one>0:
+        q = find_and_store_min(costs,min_costs,m_minus_one-1,0)+costs[m_minus_one][n_minus_one]
+    #otherwise, apply formula regularly
+    elif n_minus_one > 0 and m_minus_one>0:
+        q = min(find_and_store_min(costs,min_costs, m_minus_one, n_minus_one-1), find_and_store_min(costs,min_costs, m_minus_one-1, n_minus_one), find_and_store_min(costs,min_costs, m_minus_one-1, n_minus_one-1)) + costs[m_minus_one][n_minus_one]
+    #store calculated value in the array
+    min_costs[m_minus_one][n_minus_one] = q
+    return q
+    
 def min_cost_top_down(costs, m_minus_one, n_minus_one):
-    return ...
+    if m_minus_one>=0 and n_minus_one>=0:
+        min_costs = [[-float('inf') for _ in range(m_minus_one+1)] for _ in range(n_minus_one+1)]
+        #recursively calculate min costs, while also searching for stored value and access it for calculation
+        return find_and_store_min(costs, min_costs, m_minus_one, n_minus_one)
+    return []
 
 
 # function header for Q4.3 (Auto & manual grading)
@@ -215,11 +322,23 @@ def min_cost_top_down(costs, m_minus_one, n_minus_one):
 #
 # Include comments on key lines of code to demonstrate your comprehension.
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def min_cost_bottom_up(costs, m_minus_one, n_minus_one):
-    return ...
+    if m_minus_one>=0 and n_minus_one>=0:
+        min_costs = costs
+        #min cost of edge case is sum of previous case from the same edge
+        for i in range(1,m_minus_one+1):
+            min_costs[i][0] += min_costs[i-1][0]
+        for j in range(1,n_minus_one+1):
+            min_costs[0][j] += min_costs[0][j-1]
+        #after solving special cases, apply formula to the rest
+        for i in range(1,m_minus_one+1):
+            for j in range(1,n_minus_one+1):
+                min_costs[i][j] += min(min_costs[i-1][j], min_costs[i][j-1], min_costs[i-1][j-1])
+        return min_costs[m_minus_one][n_minus_one]
+    return []
 
 
 # function header for Q4.4 (Manual grading — printed output evaluated)
@@ -230,10 +349,36 @@ def min_cost_bottom_up(costs, m_minus_one, n_minus_one):
 # n_minus_one -> col index of destination (N-1)
 # return      -> N/C
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def min_cost_path_wrapper(costs, m_minus_one, n_minus_one):
+    #we already have the min cost, however the path is unknown
+    min_cost = min_cost_bottom_up(costs,m_minus_one,n_minus_one)
+    m=m_minus_one
+    n=n_minus_one
+    min_cost_index = [[m,n]]
+    #find the path by continuosly deduct the min of the closest cells(above the destination) from the min cost
+    while m > 0 and n > 0:
+        temp_min= min(costs[m-1][n], costs[m][n-1],costs[m-1][n-1])
+        if temp_min == costs[m-1][n]:
+            m = m-1
+        if temp_min == costs[m][n-1]:
+            n=n-1
+        if temp_min == costs[m-1][n-1]:
+            n=n-1
+            m=m-1
+        min_cost -= temp_min
+        #insert the indexes at the front, because they are the cells above the destination
+        min_cost_index = np.insert(min_cost_index, 0, [m,n], axis=0)
+    #eventually insert the start's index at front
+    min_cost_index = np.insert(min_cost_index, 0, [0,0], axis=0)
+    #print out the list
+    for i in range(len(min_cost_index)):
+        print(f"({min_cost_index[i][0]},{min_cost_index[i][1]})", end ='')
+        if i < len(min_cost_index)-1:
+            print(f"->", end ='')
+        else: print(".")
     pass
 
 
@@ -259,11 +404,32 @@ def min_cost_path_wrapper(costs, m_minus_one, n_minus_one):
 #
 # Include comments on key lines of code to demonstrate your comprehension.
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
+def top_down_mult(q,m,i,j):
+    # base case i=j
+    if i == j:
+        m[i][j] = 0
+        return 0
+    #check if memorize array of the index is previously initialized
+    if m[i][j] >=0:
+        return m[i][j]
+    else:
+        #recursively check multiplication
+        min_mult = top_down_mult(q,m,i+1,j) + q[i-1]*q[i]*q[j]
+        p = min_mult
+        for k in range(i+1,j):
+            p = top_down_mult(q,m,i,k) + top_down_mult(q,m,k+1,j) + q[i-1]*q[k]*q[j]
+            if min_mult > p:
+                min_mult = p
+        #assign found minimum multiplication to memorized array
+        m[i][j]=min_mult
+    return min_mult
+
 def matrix_chain_top_down(q, i, j):
-    return ...
+    m = [[-float("inf") for _ in range(j+1)]for _ in range(j+1)]
+    return top_down_mult(q,m,i,j)
 
 
 # function header for Q5.2 (Auto & manual grading)
@@ -278,11 +444,33 @@ def matrix_chain_top_down(q, i, j):
 #
 # Include comments on key lines of code to demonstrate your comprehension.
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def matrix_chain_bottom_up(q):
-    return ...
+    m = [[float('inf') for _ in range(len(q))] for _ in range(len(q))]
+    s = [[float('inf') for _ in range(len(q))] for _ in range(len(q))]
+    #since the multiplication of closer indexes are easier to find, approach them first by looping distance, not index
+    for n in range(0, len(q)-1):
+        #then initualize first index, and calculate second index based on distance
+        for i in range(1, len(q)-n):
+            #distance = 0 <=> index i=j
+            if n == 0:
+                m[i][i]=0
+            else:
+                #repeatedly calculate and compare to find the min
+                min = m[i+1][i+n] + q[i-1]*q[i]*q[i+n]
+                s[i][i+n] = i
+                for k in range(i+1,i+n):
+                    temp = m[i][k] + m[k+1][i+n] + q[i-1]*q[k]*q[i+n]
+                    if min > temp:
+                        min = temp
+                        #if a new min is assigned, update split index
+                        s[i][i+n] = k
+                #update min
+                m[i][i+n] = min
+
+    return tuple([m, s])
 
 
 # function header for Q5.3 (Auto & manual grading)
@@ -300,11 +488,24 @@ def matrix_chain_bottom_up(q):
 # Ex: q=[9,46,4,18,21,40,19,25,14,37,33],
 #     matrix=['A1','A2','A3','A4','A5','A6','A7','A8','A9','A10']
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def matrix_chain_parenthesization(q, matrix):
-    return ...
+    # found list of min scalar multiplications and split index, access it at the rith index to find k
+    if len(matrix) == 1:
+        return f"{matrix[0]}"
+    k = matrix_chain_bottom_up(q)[1][len(q)-1]
+    q_1 = q[:k+1]
+    q_2 = q[k:]
+    matrix_1 = matrix[:k]
+    matrix_2 = matrix[k:]
+    #recursively run the function to return the split matrix chain
+    if len(matrix_1) == 2:
+        return f"(({matrix_1[0]}{matrix_1[1]}){matrix_chain_parenthesization(q_2, matrix_2)})"
+    if len(matrix_2) == 2:
+        return f"({matrix_chain_parenthesization(q_1, matrix_1)}({matrix_2[0]}{matrix_2[1]}))"
+    return f"({matrix_chain_parenthesization(q_1, matrix_1)}{matrix_chain_parenthesization(q_2, matrix_2)})"
 
 
 # ============================================================================
@@ -325,11 +526,26 @@ def matrix_chain_parenthesization(q, matrix):
 #
 # Include comments on key lines of code to demonstrate your comprehension.
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
+def saved_rod_cut(p,n,r):
+    #find saved max revenue
+    if r[n] >= 0:
+        return r[n]
+    #base case length = 0
+    if n == 0:
+        q = 0
+    else:
+        #find max of the revenue of cutting, by combining price of different length and saved revenue of remaining
+        q = -float('inf')
+        for i in range(1,n+1):
+            q= max(q,p[i] + saved_rod_cut(p,n-i,r))
+    r[n] = q
+    return q
 def rod_cut_top_down(p, n):
-    return ...
+    r = [-float('inf')] * (n+1)
+    return saved_rod_cut(p,n,r)
 
 
 # function header for Q6.2 (Auto & manual grading)
@@ -344,11 +560,23 @@ def rod_cut_top_down(p, n):
 #
 # Include comments on key lines of code to demonstrate your comprehension.
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def rod_cut_bottom_up(p):
-    return ...
+    # initialize both list with 0, hence base case is already = 0, continue with index at 1
+    r = [0]*len(p)
+    s = [0]*len(p)
+    for j in range(1,len(p)):
+        q = -float('inf')
+        # find the max revenue
+        for i in range(1,j+1):
+            temp= p[i] + r[j-i]
+            if q < temp:
+                q = temp
+                s[j] = i
+        r[j] = q
+    return tuple([r,s])
 
 
 # function header for Q6.3 (Auto & manual grading)
@@ -363,11 +591,21 @@ def rod_cut_bottom_up(p):
 #
 # Include comments on key lines of code to demonstrate your comprehension.
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def rod_cut_reconstruct(p, n):
-    return ...
+    arr = []
+    #let length l = remaining length of the rod after cut
+    l = n
+    while l > 0:
+        #append arr with result from the previous function, accessing its list using indexing 1: list of splits,
+        # at index of length l
+        arr.append(rod_cut_bottom_up(p)[1][l])
+        #decrease l by the known split
+        l -= arr[-1]
+    # use sorted to return the length of split rod, after all splits
+    return sorted(arr)
 
 
 # ============================================================================
@@ -392,11 +630,17 @@ def rod_cut_reconstruct(p, n):
 #
 # Include comments on key lines of code to demonstrate your comprehension.
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def slice_sort_kth(array, commands):
-    return ...
+    element = []
+    for i in range(len(commands)):
+        # use all in one line:
+        # firstly find the subset, sort the subset, then find the value of index in that sorted subset
+        #finally append the result to llist element
+        element.append(sorted(array[commands[i][0] -1 : commands[i][1]])[commands[i][2]-1])
+    return element
 
 
 # ============================================================================
@@ -425,11 +669,24 @@ def slice_sort_kth(array, commands):
 #
 # Include comments on key lines of code to demonstrate your comprehension.
 #
-# AI Tool Used: <tool name or "None">
+# AI Tool Used: <"None">
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def filter_and_sort(data, ext, val_ext, sort_by):
-    return ...
+    new_data = []
+    field = ["code","date","maximum","remain"]
+    #assign "ext" and "sort_by" as number to access indexes easier
+    for f in range(4):
+        if ext == field[f]:
+            ext = f
+        if sort_by == field[f]:
+            sort_by = f
+    #then find the data with suitable value
+    for i in range(len(data)):
+        if data[i][ext] < val_ext:
+            new_data.append(data[i])
+    #return the sorted data, by "sort_by"
+    return sorted(new_data, key = lambda data: data[sort_by])
 
 
 # ============================================================================
@@ -438,4 +695,48 @@ def filter_and_sort(data, ext, val_ext, sort_by):
 if __name__ == "__main__":
     # You can test your code here
     # This section will not be evaluated by Gradescope
+    """A = [1,3,2,6,4,5]
+    print(quick_sort(A))
+    q1_2()
+    q1_3()
+    q1_4()
+    q1_6()
+
+    A2 = [[6,0],[212,1],[247,0],[352,1],[388,1],[633,2],[694,0],[779,1],[793,2],[859,0]]
+    print(f"List is sorted into: {priority_sort(A2)}")
+
+    A3 = [3,2,10,4,8,9]
+    print(subset_sum(A3, 5))
+    print(subset_sum(A3, 12))
+    print(subset_sum(A3, 15))
+    print(subset_sum(A3, 9))
+    print(subset_sum(A3, 1))
+
+    #A4 = [[2,2,3],[3,7,1],[4,6,4]]
+    #print(min_cost_naive(A4,len(A4)-1,len(A4[0])-1))
+    #print(min_cost_top_down(A4,len(A4)-1,len(A4[0])-1))
+    #print(min_cost_bottom_up(A4,len(A4)-1,len(A4[0])-1))
+    #print(min_cost_path_wrapper(A4,len(A4)-1,len(A4[0])-1))
+
+    A5 = [9,46,4,18,21,40,19,25,14,37,33]
+    #print(matrix_chain_bottom_up(A5))
+    matrix=['A1','A2','A3','A4','A5','A6','A7','A8','A9','A10']
+    print(matrix_chain_parenthesization(A5,matrix))
+
+    A6 = [0,1,5,8,9,10,17,17,20,24,30]
+    print(rod_cut_bottom_up(A6))
+    for i in range(len(A6)):
+        print(rod_cut_reconstruct(A6,i))
+
+    array=[1,5,2,6,3,7,4]
+    commands=[[2,5,3],[4,4,1],[1,7,3]]
+    print(slice_sort_kth(array, commands))
+
+    data = [[1, 20300104, 100, 80],
+            [2, 20300804, 847, 37],
+            [3, 20300401, 10, 8]]
+    ext = "date"
+    val_ext = 20300501
+    sort_by = "remain"
+    print(filter_and_sort(data,ext,val_ext,sort_by))"""
     pass
