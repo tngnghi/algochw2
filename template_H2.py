@@ -199,13 +199,6 @@ def q1_6():
 # Verification: <how you verified the correctness of the AI-generated code>
 def priority_sort(input):
     temp = sorted(input, key=lambda x: x[1])
-    print(temp)
-    split = 0
-    for i in range(1,len(temp)-1):
-        if temp[i][1] > temp[i-1][1]:
-            input[split:i] = sorted(temp[split:i], key=lambda x: x[0])
-            split = i
-    input[split:] = sorted(temp[split:], key=lambda x: x[0])
     return input
 
 # ============================================================================
