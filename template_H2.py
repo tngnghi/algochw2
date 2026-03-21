@@ -198,7 +198,12 @@ def q1_6():
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def priority_sort(input):
-    temp = sorted(input, key=lambda x: x[1])
+    for i in range(1,len(input)):
+        for j in range(0,len(input)-1):
+            #approach priority first, comparing, then swap the to their right place
+            if input[i][1] < input[j][1]:
+                input[j], input[i] = input[i], input[j]
+    return input
     return input
 
 # ============================================================================
