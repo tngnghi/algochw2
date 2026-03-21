@@ -198,13 +198,13 @@ def q1_6():
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def priority_sort(input):
-    for i in range(1,len(input)):
-        for j in range(0,len(input)-1):
-            #approach priority first, comparing, then swap the to their right place
-            if input[i][1] < input[j][1]:
-                input[j], input[i] = input[i], input[j]
-    return input
-    return input
+    # separate into three buckets by priority, preserving original order
+    high   = [x for x in input if x[1] == 0]  
+    medium = [x for x in input if x[1] == 1]  
+    low    = [x for x in input if x[1] == 2]  
+    
+    # concatenate groups in order: high -> medium -> low
+    return high + medium + low
 
 # ============================================================================
 # Q3. Subset Sum
