@@ -7,6 +7,7 @@ import random
 import numpy as np
 from timeit import default_timer as timer
 import matplotlib.pyplot as plt
+from operator import itemgetter
 
 sys.setrecursionlimit(2000)
 
@@ -110,7 +111,7 @@ def q1_4():
 # Q1.5:
 # Explain why the running time of Q1-(3) and Q1-(4) is greater than Q1-(2).
 # Write your explanation below as a Python comment
-# {since quick_sort work as an divide-and-conquer algorithm, is the sequence is either descending or ascending, 
+# {since quick_sort work as an divide-and-conquer algorithm, if the sequence is either descending or ascending, 
 # quick-sort has to go through every items, and partition right at the front or end of the list, which will create more partition in between.
 # However, with random sequences, partition can be the middle index, hence lessen the time that partition function iterates}
 
@@ -128,17 +129,26 @@ def q1_4():
 # Verification: <how you verified the correctness of the AI-generated code>
 # < 10 points - autograding >
 def modified_partition(A, p, r):
-    #choose pivot as the middle, instead of the end, to make runtime into nlogn instead of n^2
-    x = A[(p+r)//2]
-    #the rest have similar strategy of approaching as the first edition
-    i = p-1
+    # change the pivot into the middle of array, instead of the end of the array, minimize overlapping uneccessary partition for sorted array        
+    pivot = (p+r)//2
+    # Swap pivot to end so the rest of the logic stays the same as original partition
+    A[pivot], A[r] = A[r], A[pivot]
+    x = A[r]
+    i=p-1
     for j in range(p, r):
         if A[j] <= x:
             i=i+1
             A[i], A[j] = A[j], A[i]
     A[i+1], A[r] = A[r], A[i+1]
-    return i + 1
+    return i+1
+    
+
 def modified_quick(input_list,p,r):
+    # Base case: two-element list uses swap if out of order
+    if r == p+1:
+        if input_list[p] > input_list[r]:
+            input_list[p], input_list[r] = input_list[r],input_list[p]
+        return input_list
     if p < r:
         q = modified_partition(input_list, p, r)
         modified_quick(input_list, p, q-1)
@@ -188,16 +198,15 @@ def q1_6():
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def priority_sort(input):
-    for i in range(1,len(input)):
-        for j in range(0,len(input)-1):
-            #approach priority first, comparing, then swap the to their right place
-            if input[i][1] < input[j][1]:
-                input[j], input[i] = input[i], input[j]
-            # then approach value, comparing, then swap the to their right place
-            if input[i][1] == input[j][1] and input[i][0] < input[j][0]:
-                input[j], input[i] = input[i], input[j]
+    temp = sorted(input, key=lambda x: x[1])
+    print(temp)
+    split = 0
+    for i in range(1,len(temp)-1):
+        if temp[i][1] > temp[i-1][1]:
+            input[split:i] = sorted(temp[split:i], key=lambda x: x[0])
+            split = i
+    input[split:] = sorted(temp[split:], key=lambda x: x[0])
     return input
-
 
 # ============================================================================
 # Q3. Subset Sum
@@ -230,6 +239,12 @@ def checked_subset(nums, a, b, target):
     return False
     
 def subset_sum(nums, target):
+    #target is 0
+    if target == 0: return True
+    #one element set
+    if len(nums) == 1:
+        if target == nums[0]: return True
+        return False
     #loop and check all continuous subsets of nums
     for j in range(0, len(nums)-1):
         return checked_subset(nums,j,len(nums)-1, target)
@@ -286,20 +301,19 @@ def min_cost_naive(costs, m_minus_one, n_minus_one):
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def find_and_store_min(costs, min_costs, m_minus_one, n_minus_one):
-    q=None
     #since we can access the stored array, if it exist, return the value instead of calculating again
-    if min_costs[m_minus_one][n_minus_one] >= np.min(costs):
+    if min_costs[m_minus_one][n_minus_one] is not None:
         return min_costs[m_minus_one][n_minus_one]
     #cell is at start
     if m_minus_one == 0 and n_minus_one ==0:
         q = costs[0][0]
     #cell is on edge
-    if m_minus_one == 0 and n_minus_one>0:
+    elif m_minus_one == 0 and n_minus_one>0:
         q = find_and_store_min(costs,min_costs,0,n_minus_one-1)+costs[m_minus_one][n_minus_one]
-    if n_minus_one == 0 and m_minus_one>0:
+    elif n_minus_one == 0 and m_minus_one>0:
         q = find_and_store_min(costs,min_costs,m_minus_one-1,0)+costs[m_minus_one][n_minus_one]
     #otherwise, apply formula regularly
-    elif n_minus_one > 0 and m_minus_one>0:
+    else:
         q = min(find_and_store_min(costs,min_costs, m_minus_one, n_minus_one-1), find_and_store_min(costs,min_costs, m_minus_one-1, n_minus_one), find_and_store_min(costs,min_costs, m_minus_one-1, n_minus_one-1)) + costs[m_minus_one][n_minus_one]
     #store calculated value in the array
     min_costs[m_minus_one][n_minus_one] = q
@@ -307,7 +321,7 @@ def find_and_store_min(costs, min_costs, m_minus_one, n_minus_one):
     
 def min_cost_top_down(costs, m_minus_one, n_minus_one):
     if m_minus_one>=0 and n_minus_one>=0:
-        min_costs = [[-float('inf') for _ in range(m_minus_one+1)] for _ in range(n_minus_one+1)]
+        min_costs = [[None for _ in range(n_minus_one+1)] for _ in range(m_minus_one+1)]
         #recursively calculate min costs, while also searching for stored value and access it for calculation
         return find_and_store_min(costs, min_costs, m_minus_one, n_minus_one)
     return []
@@ -448,28 +462,20 @@ def matrix_chain_top_down(q, i, j):
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def matrix_chain_bottom_up(q):
-    m = [[float('inf') for _ in range(len(q))] for _ in range(len(q))]
-    s = [[float('inf') for _ in range(len(q))] for _ in range(len(q))]
-    #since the multiplication of closer indexes are easier to find, approach them first by looping distance, not index
-    for n in range(0, len(q)-1):
-        #then initualize first index, and calculate second index based on distance
-        for i in range(1, len(q)-n):
-            #distance = 0 <=> index i=j
-            if n == 0:
-                m[i][i]=0
-            else:
-                #repeatedly calculate and compare to find the min
-                min = m[i+1][i+n] + q[i-1]*q[i]*q[i+n]
-                s[i][i+n] = i
-                for k in range(i+1,i+n):
-                    temp = m[i][k] + m[k+1][i+n] + q[i-1]*q[k]*q[i+n]
-                    if min > temp:
-                        min = temp
-                        #if a new min is assigned, update split index
-                        s[i][i+n] = k
-                #update min
-                m[i][i+n] = min
-
+    m = [[0 for _ in range(len(q))] for _ in range(len(q))]
+    s = [[0 for _ in range(len(q))] for _ in range(len(q))]
+    # loop by chain length
+    for length in range(2, len(q)):
+        for i in range(1, len(q) - length + 1):
+            j = i + length - 1
+            m[i][j] = float('inf')
+            # try all possible split points k between i and j
+            for k in range(i, j):
+                temp = m[i][k] + m[k+1][j] + q[i-1] * q[k] * q[j]
+                # update min and record split index
+                if temp < m[i][j]:
+                    m[i][j] = temp
+                    s[i][j] = k
     return tuple([m, s])
 
 
@@ -492,20 +498,23 @@ def matrix_chain_bottom_up(q):
 # Interaction: <description of how the AI tool was used, e.g., prompts given>
 # Verification: <how you verified the correctness of the AI-generated code>
 def matrix_chain_parenthesization(q, matrix):
-    # found list of min scalar multiplications and split index, access it at the rith index to find k
-    if len(matrix) == 1:
-        return f"{matrix[0]}"
-    k = matrix_chain_bottom_up(q)[1][len(q)-1]
-    q_1 = q[:k+1]
-    q_2 = q[k:]
-    matrix_1 = matrix[:k]
-    matrix_2 = matrix[k:]
-    #recursively run the function to return the split matrix chain
-    if len(matrix_1) == 2:
-        return f"(({matrix_1[0]}{matrix_1[1]}){matrix_chain_parenthesization(q_2, matrix_2)})"
-    if len(matrix_2) == 2:
-        return f"({matrix_chain_parenthesization(q_1, matrix_1)}({matrix_2[0]}{matrix_2[1]}))"
-    return f"({matrix_chain_parenthesization(q_1, matrix_1)}{matrix_chain_parenthesization(q_2, matrix_2)})"
+    # get the s table from bottom_up using original q
+    _,s = matrix_chain_bottom_up(q)
+    
+    # helper to recurse using i,j indices into the same s table
+    def build(i, j):
+        # base case: single matrix, return its name
+        if i == j:
+            return matrix[i - 1]
+        # get split point from s table
+        k = s[i][j]
+        # recursively build left and right sides
+        left  = build(i, k)
+        right = build(k + 1, j)
+        return f"({left}{right})"
+    
+    # call helper with full range, 1-based indexing
+    return build(1, len(q) - 1)
 
 
 # ============================================================================
@@ -695,8 +704,20 @@ def filter_and_sort(data, ext, val_ext, sort_by):
 if __name__ == "__main__":
     # You can test your code here
     # This section will not be evaluated by Gradescope
-    """A = [1,3,2,6,4,5]
-    print(quick_sort(A))
+    """A_1 = [1,2,3,4,5,6]
+    A_2 = [6,5,4,3,2,1]
+    A_3 = [1,2,2,2,2,3,3,3,3,3,4,4,4,4]
+    A_4 = np.random.randint(-5, 5, 10)
+    print(modified_quick_sort(A_1))
+    print("\n")
+    print(modified_quick_sort(A_2))
+    print("\n")
+    print(modified_quick_sort(A_3))
+    print("\n", A_4)
+    print(modified_quick_sort(A_4))
+    A = [1,3,2,6,4,5]
+    print(modified_quick_sort(A))
+    #print(quick_sort(A))
     q1_2()
     q1_3()
     q1_4()
